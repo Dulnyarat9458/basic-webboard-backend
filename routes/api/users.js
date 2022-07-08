@@ -180,7 +180,7 @@ router.post('/recovery', (req, res) => {
                 } else {
                     res.status(200).json({
                         status: "ok",
-                        msg: "The Email is registered with us and we send the recovery email",
+                        msg: "An e-mail has been sent with the URL for re-issuing your password. Access the URL in the e-mail to re-issue your password.",
                     });
                 }
             });
@@ -211,7 +211,7 @@ router.put('/resetpassword', (req, res) => {
                         res.send(err);
                     } else {
                         res.status(200).json({
-                            "status": "ok", "msg": "update complete",
+                            "status": "ok", "msg": "update new password complete , you can use the new password now",
                             "decoded-data": decoded, "new-password": hashpassword,
                         });
                     }
