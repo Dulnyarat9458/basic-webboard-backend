@@ -68,9 +68,16 @@ router.post('/login', (req, res) => {
                         secert
                     );
                     res.json({
-                        msg: "login success",
-                        status: "ok",
-                        token: token,
+                        "msg": "login success",
+                        "status": "ok",
+                        "token": token,
+                        "users": ({
+                            "id": user[0].user_id,
+                            "email": user[0].user_email,
+                            "name": user[0].user_name,
+                            "gender": user[0].user_gender,
+                            "role": user[0].user_role,
+                        })
                     });
 
                 } else {
@@ -227,22 +234,61 @@ router.put('/resetpassword', (req, res) => {
 })
 
 //update user
-router.put('/:id', (req, res) => {
-    const name = req.body.name;
-    console.log(name)
-    db.query(
-        `UPDATE member SET name ="${name}" WHERE id = "${req.params.id}"`,
-        (err, result) => {
-            if (err) {
-                console.log(id);
-                console.log(name);
-                console.log(email);
-                res.send(err);
-            } else {
-                res.send("Values Updated");
+router.put('/updateprofile', (req, res) => {
+    try {
+
+        const token = req.headers.authorization.split(' ')[1];
+        const uid = req.body.user_id;
+        const uemail = req.body.user_email;
+        const uname = req.body.user_name;
+        const ugender = req.body.user_gender;
+        const urole = req.body.user_role;
+        console.log(req.body)
+
+        var decoded = jwt.verify(token, secert);
+        console.log("decoded : " + decoded)
+        db.query(
+            `UPDATE users SET user_name ="${uname}",user_gender ="${ugender}" WHERE user_id = "${uid}"`,
+            (err, result) => {
+                if (err) {
+                    res.send(err);
+                } else {
+
+                    var token = jwt.sign({
+                        id: uid,
+                        email: uemail,
+                        name: uname,
+                        gender: ugender,
+                        role: urole
+                    },
+                        secert
+                    );
+                    res.json({
+                        "status": "ok",
+                        "msg": "update new profile complete",
+                        "result": result,
+                        "token": token,
+                        "users": ({
+                            "id": uid,
+                            "email": uemail,
+                            "name": uname,
+                            "gender": ugender,
+                            "role": urole
+                        })
+                    });
+
+                }
             }
-        }
-    );
+        );
+
+    } catch (error) {
+        console.log("decoded error : " + decoded)
+        console.log("token error : " + token)
+        res.json({
+            msg: error,
+            status: "error",
+        });
+    }
 })
 
 

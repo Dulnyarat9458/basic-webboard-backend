@@ -44,7 +44,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(logger);
 app.use('/api/users', require('./routes/api/users'));
 app.use('/api/contents', require('./routes/api/contents'));
-
+app.use('/api/comments', require('./routes/api/comments'));
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
