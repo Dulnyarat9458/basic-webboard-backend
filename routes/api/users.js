@@ -31,12 +31,23 @@ router.get('/', (req, res) => {
 
 //get user
 router.get('/:id', (req, res) => {
-    db.query("SELECT * FROM users WHERE id = " + req.params.id, (err, result) => {
+    db.query("SELECT * FROM users WHERE user_id = " + req.params.id, (err, user) => {
         if (err) {
             console.log(err);
             res.send(err);
         } else {
-            res.send(result);
+            res.json({
+                "msg": "login success",
+                "status": "ok",
+
+                "users": ({
+                    "id": user[0].user_id,
+                    "email": user[0].user_email,
+                    "name": user[0].user_name,
+                    "gender": user[0].user_gender,
+                    "role": user[0].user_role,
+                })
+            });
         }
     }
     )
@@ -85,6 +96,8 @@ router.post('/login', (req, res) => {
                         msg: "wrong password",
                         status: "error",
                     });
+
+                    console.log(err);
                 }
             });
         }
@@ -99,8 +112,9 @@ router.post('/auth', (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         var decoded = jwt.verify(token, secert);
+        const role = decoded.role
         console.log("decoded : " + decoded)
-        res.json({ token, decoded, status: "ok" })
+        res.json({ token, decoded, status: "ok", role: role })
     } catch (error) {
         console.log("decoded error : " + decoded)
         console.log("token error : " + token)

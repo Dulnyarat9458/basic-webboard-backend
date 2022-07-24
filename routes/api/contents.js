@@ -18,7 +18,7 @@ const db = mysql.createConnection({
 
 
 router.get('/', (req, res) => {
-    db.query("SELECT contents.content_id,contents.content_topic,contents.content_story,users.user_name as content_writer,contents.content_post_time FROM contents INNER JOIN users ON contents.content_author_id = users.user_id ORDER BY contents.content_post_time DESC", (err, result) => {
+    db.query("SELECT contents.content_id,contents.content_topic,contents.content_story,users.user_name as content_writer,contents.content_author_id as content_writer_id,contents.content_post_time FROM contents INNER JOIN users ON contents.content_author_id = users.user_id ORDER BY contents.content_post_time DESC", (err, result) => {
         if (err) {
             console.log(err);
             res.send(err);
