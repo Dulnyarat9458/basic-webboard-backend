@@ -7,7 +7,7 @@ var jwt = require('jsonwebtoken');
 const secert = 'fullstack-login-2022'
 
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
     user: 'root',
     host: 'localhost',
     password: 'root',

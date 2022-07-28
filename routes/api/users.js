@@ -7,7 +7,7 @@ var jwt = require('jsonwebtoken');
 const secert = 'fullstack-login-2022'
 const nodemailer = require('nodemailer');
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
     user: 'root',
     host: 'localhost',
     password: 'root',
@@ -60,7 +60,10 @@ router.post('/login', (req, res) => {
     console.log(email);
     console.log(password);
     db.query(`SELECT * FROM users WHERE user_email = "${email}"`, (err, user) => {
-        if (err) { res.send(err); return }
+        if (err) { res.send(err); 
+            console.log("error is:"+err)
+            return 
+        }
         if (user.length == 0) {
             res.json({
                 msg: "not found this user",
@@ -267,7 +270,6 @@ router.put('/updateprofile', (req, res) => {
                 if (err) {
                     res.send(err);
                 } else {
-
                     var token = jwt.sign({
                         id: uid,
                         email: uemail,

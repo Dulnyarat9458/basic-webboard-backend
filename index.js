@@ -5,9 +5,9 @@ const cors = require('cors');
 const mysql = require('mysql');
 
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
     user: 'root',
-    host: 'localhost',
+    host: 'mysql',
     password: 'root',
     database: "webboard"
 })
@@ -19,7 +19,10 @@ app.use(cors());
 
 
 db.connect(function (err) {
-    if (err) throw err;
+    if (err) {
+        console.log(err.message);
+        throw err ; 
+    }
     console.log("Database Connected");
 });
 
