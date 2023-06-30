@@ -3,19 +3,16 @@ const router = express.Router();
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-var jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const secert = 'fullstack-login-2022'
 const nodemailer = require('nodemailer');
 
 const db = mysql.createPool({
-    user: 'root',
-    host: 'localhost',
-    password: 'root',
-    database: "webboard"
+    user: process.env.MYSQL_USER,
+    host: process.env.DB_HOST,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE
 })
-
-
-
 
 router.get('/', (req, res) => {
     db.query("SELECT * FROM users", (err, result) => {
@@ -39,7 +36,6 @@ router.get('/:id', (req, res) => {
             res.json({
                 "msg": "login success",
                 "status": "ok",
-
                 "users": ({
                     "id": user[0].user_id,
                     "email": user[0].user_email,
@@ -52,7 +48,6 @@ router.get('/:id', (req, res) => {
     }
     )
 })
-
 
 router.post('/login', (req, res) => {
     const email = req.body.user_email;
@@ -109,9 +104,6 @@ router.post('/login', (req, res) => {
 })
 
 router.post('/auth', (req, res) => {
-    console.log("=======================");
-    console.log(req.headers.authorization);
-    console.log("=======================");
     try {
         const token = req.headers.authorization.split(' ')[1];
         var decoded = jwt.verify(token, secert);
@@ -128,13 +120,12 @@ router.post('/auth', (req, res) => {
     }
 });
 
-//register user
+
 router.post('/register', (req, res) => {
     const email = req.body.user_email;
     const password = req.body.user_password;
     const name = req.body.user_name;
     const gender = req.body.user_gender;
-
     bcrypt.hash(password, saltRounds, function (err, hashpassword) {
         if (err) {
             console.log(err);
@@ -169,7 +160,6 @@ router.post('/register', (req, res) => {
 
 router.post('/recovery', (req, res) => {
     const email = req.body.user_email;
-
     db.query('SELECT * FROM users WHERE user_email ="' + email + '"', (err, user) => {
         if (user.length !== 0) {
             let transporter = nodemailer.createTransport({
@@ -219,7 +209,6 @@ router.post('/recovery', (req, res) => {
 
 
 router.put('/resetpassword', (req, res) => {
-
     try {
         const password = req.body.new_password;
         const token = req.headers.authorization.split(' ')[1];
@@ -250,20 +239,16 @@ router.put('/resetpassword', (req, res) => {
     }
 })
 
-//update user
+
 router.put('/updateprofile', (req, res) => {
     try {
-
         const token = req.headers.authorization.split(' ')[1];
         const uid = req.body.user_id;
         const uemail = req.body.user_email;
         const uname = req.body.user_name;
         const ugender = req.body.user_gender;
         const urole = req.body.user_role;
-        console.log(req.body)
-
-        var decoded = jwt.verify(token, secert);
-        console.log("decoded : " + decoded)
+        const decoded = jwt.verify(token, secert);
         db.query(
             `UPDATE users SET user_name ="${uname}",user_gender ="${ugender}" WHERE user_id = "${uid}"`,
             (err, result) => {
@@ -296,7 +281,6 @@ router.put('/updateprofile', (req, res) => {
                 }
             }
         );
-
     } catch (error) {
         console.log("decoded error : " + decoded)
         console.log("token error : " + token)
@@ -307,8 +291,6 @@ router.put('/updateprofile', (req, res) => {
     }
 })
 
-
-//update user
 router.delete('/:id', (req, res) => {
     db.query(
         `DELETE FROM member WHERE id = "${req.params.id}"`,
@@ -321,11 +303,5 @@ router.delete('/:id', (req, res) => {
         }
     );
 })
-
-
-
-
-
-
 
 module.exports = router; 
