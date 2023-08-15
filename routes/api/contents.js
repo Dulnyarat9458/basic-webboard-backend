@@ -27,11 +27,9 @@ router.get('/', (req, res) => {
 router.get('/own/:id', (req, res) => {
     db.query("SELECT * FROM contents  WHERE content_author_id = " + req.params.id + "  ORDER BY contents.content_post_time DESC", (err, result) => {
         if (err) {
-            console.log(err);
             res.send(err);
         } else {
             res.send(result);
-            console.log(result);
         }
     }
     )

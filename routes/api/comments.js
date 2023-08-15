@@ -55,7 +55,6 @@ router.delete('/own/delete/:id/:comment_id', (req, res) => {
                 uid: uid,
                 comment_id: comment_id
             });
-            console.log(result);
         }
     }
     )
@@ -87,7 +86,6 @@ router.post('/addcomment', (req, res) => {
 
 router.put('/own/update/:id/:comment_id', (req, res) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
         const uid = req.body.comment_writer_id;
         const cid = req.body.comment_id;
         const text = req.body.comment_text;

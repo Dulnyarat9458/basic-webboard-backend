@@ -51,11 +51,8 @@ router.get('/:id', (req, res) => {
 router.post('/login', (req, res) => {
     const email = req.body.user_email;
     const password = req.body.user_password;
-    console.log(email);
-    console.log(password);
     db.query(`SELECT * FROM users WHERE user_email = "${email}"`, (err, user) => {
         if (err) { res.send(err); 
-            console.log("error is:"+err)
             return 
         }
         if (user.length == 0) {
@@ -104,11 +101,8 @@ router.post('/auth', (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
         var decoded = jwt.verify(token, secert);
         const role = decoded.role
-        console.log("decoded : " + decoded)
         res.json({ token, decoded, status: "ok", role: role })
     } catch (error) {
-        console.log("decoded error : " + decoded)
-        console.log("token error : " + token)
         res.json({
             msg: error,
             status: "error",
@@ -123,7 +117,6 @@ router.post('/register', (req, res) => {
     const gender = req.body.user_gender;
     bcrypt.hash(password, saltRounds, function (err, hashpassword) {
         if (err) {
-            console.log(err);
             res.send(err);
         } else {
             db.query(`SELECT * FROM users WHERE user_email = "${email}"`, (err, user) => {
