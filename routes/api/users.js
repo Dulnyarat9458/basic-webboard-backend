@@ -26,7 +26,6 @@ router.get('/', (req, res) => {
     )
 })
 
-//get user
 router.get('/:id', (req, res) => {
     db.query("SELECT * FROM users WHERE user_id = " + req.params.id, (err, user) => {
         if (err) {
@@ -88,14 +87,11 @@ router.post('/login', (req, res) => {
                             "role": user[0].user_role,
                         })
                     });
-
                 } else {
                     res.json({
                         msg: "wrong password",
                         status: "error",
                     });
-
-                    console.log(err);
                 }
             });
         }
@@ -119,7 +115,6 @@ router.post('/auth', (req, res) => {
         });
     }
 });
-
 
 router.post('/register', (req, res) => {
     const email = req.body.user_email;
@@ -166,8 +161,8 @@ router.post('/recovery', (req, res) => {
                 host: 'gmail',
                 service: 'Gmail',
                 auth: {
-                    user: 'dulnyarat.9458@gmail.com',
-                    pass: 'exlpqveqtepxweqa',
+                    user: process.env.RESET_EMAIL,
+                    pass: process.env.RESET_PASSWORD,
                 },
             });
             const token = jwt.sign({
@@ -180,7 +175,7 @@ router.post('/recovery', (req, res) => {
                 secert
             );
             transporter.sendMail({
-                from: 'dulnyarat.9458@gmail.com',
+                from: process.env.RESET_EMAIL,
                 to: email,
                 subject: "Reset your password",
                 text: "ตอบรับการร้องขอรีเซ็ตรหัสผ่าน",
@@ -214,8 +209,6 @@ router.put('/resetpassword', (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, secert);
         const uid = decoded.id
-        console.log("decoded : " + decoded.id)
-        console.log(password)
         bcrypt.hash(password, saltRounds, function (err, hashpassword) {
             db.query(
                 `UPDATE users SET user_password ="${hashpassword}" WHERE user_id = "${uid}"`,
@@ -282,8 +275,6 @@ router.put('/updateprofile', (req, res) => {
             }
         );
     } catch (error) {
-        console.log("decoded error : " + decoded)
-        console.log("token error : " + token)
         res.json({
             msg: error,
             status: "error",
