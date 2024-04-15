@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
+const jwt = require('jsonwebtoken');
+const secert = 'fullstack-login-2022'
 
 const db = mysql.createPool({
     user: process.env.MYSQL_USER,
@@ -43,22 +45,32 @@ router.get('/only/:comment_id', (req, res) => {
 })
 
 router.delete('/own/delete/:id/:comment_id', (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
     const uid = req.params.id;
     const comment_id = req.params.comment_id;
-    db.query(`DELETE FROM comments WHERE comment_id = "${comment_id}" AND  comment_writer_id = "${uid}"`, (err, result) => {
-        if (err) {
-            res.send(err);
-        } else {
-            res.json({
-                msg: "Delete Comment Successful",
-                status: "ok",
-                uid: uid,
-                comment_id: comment_id
-            });
-            console.log(result);
+    const decoded = jwt.verify(token, secert);
+
+    if (decoded.id != uid) {
+        res.json({
+            msg: "Forbidden ",
+            status: "error",
+        });
+    } else {
+        db.query(`DELETE FROM comments WHERE comment_id = "${comment_id}" AND  comment_writer_id = "${uid}"`, (err, result) => {
+            if (err) {
+                res.send(err);
+            } else {
+                res.json({
+                    msg: "Delete Comment Successful",
+                    status: "ok",
+                    uid: uid,
+                    comment_id: comment_id
+                });
+                console.log(result);
+            }
         }
+        )
     }
-    )
 })
 
 router.post('/addcomment', (req, res) => {
@@ -82,7 +94,6 @@ router.post('/addcomment', (req, res) => {
             }
         }
     );
-
 })
 
 router.put('/own/update/:id/:comment_id', (req, res) => {
@@ -91,23 +102,30 @@ router.put('/own/update/:id/:comment_id', (req, res) => {
         const uid = req.body.comment_writer_id;
         const cid = req.body.comment_id;
         const text = req.body.comment_text;
-        db.query(
-            `UPDATE comments SET comment_text ="${text}" WHERE comment_writer_id = "${uid}" AND comment_id = "${cid}"`,
-            (err, result) => {
-                if (err) {
-                    res.send(err);
-                    console.log(err)
-                } else {
-                    console.log(result)
-                    res.json({
-                        "status": "ok",
-                        "msg": "update Content complete",
-                    });
+        const decoded = jwt.verify(token, secert);
+        if (decoded.id != uid) {
+            res.json({
+                msg: "Forbidden ",
+                status: "error",
+            });
+        } else {
+            db.query(
+                `UPDATE comments SET comment_text ="${text}" WHERE comment_writer_id = "${uid}" AND comment_id = "${cid}"`,
+                (err, result) => {
+                    if (err) {
+                        res.send(err);
+                        console.log(err)
+                    } else {
+                        console.log(result)
+                        res.json({
+                            "status": "ok",
+                            "msg": "update Content complete",
+                        });
 
+                    }
                 }
-            }
-        );
-
+            );
+        }
     } catch (error) {
         res.json({
             msg: error,

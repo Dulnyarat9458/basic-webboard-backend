@@ -47,10 +47,6 @@ app.use('/api/comments', require('./routes/api/comments'));
 app.listen(PORT, () => {
     console.log("=======")
     console.log(`Server is running on port ${PORT}`)
-    console.log(process.env.MYSQL_USER)
-    console.log(process.env.DB_HOST)
-    console.log(process.env.MYSQL_PASSWORD)
-    console.log(process.env.MYSQL_DATABASE)
     console.log("=======")
 });
 

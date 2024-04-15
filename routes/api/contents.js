@@ -30,8 +30,8 @@ router.get('/own/:id', (req, res) => {
             console.log(err);
             res.send(err);
         } else {
+            console.log(result.RowDataPacket);
             res.send(result);
-            console.log(result);
         }
     }
     )
@@ -45,19 +45,27 @@ router.put('/own/update/:id/:content_id', (req, res) => {
         const topic = req.body.content_topic;
         const story = req.body.content_story;
         const decoded = jwt.verify(token, secert);
-        db.query(
-            `UPDATE contents SET content_topic ="${topic}",content_story ="${story}" WHERE content_author_id = "${uid}" AND content_id = "${cid}"`,
-            (err, result) => {
-                if (err) {
-                    res.send(err);
-                } else {
-                    res.json({
-                        "status": "ok",
-                        "msg": "update Content complete",
-                    });
+
+        if (decoded.id != uid) {
+            res.json({
+                msg: "Forbidden ",
+                status: "error",
+            });
+        } else {
+            db.query(
+                `UPDATE contents SET content_topic ="${topic}",content_story ="${story}" WHERE content_author_id = "${uid}" AND content_id = "${cid}"`,
+                (err, result) => {
+                    if (err) {
+                        res.send(err);
+                    } else {
+                        res.json({
+                            "status": "ok",
+                            "msg": "update Content complete",
+                        });
+                    }
                 }
-            }
-        );
+            );
+        }
     } catch (error) {
         res.json({
             msg: error,
@@ -67,19 +75,29 @@ router.put('/own/update/:id/:content_id', (req, res) => {
 })
 
 router.delete('/own/delete/:id/:content_id', (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
     const uid = req.params.id;
     const content_id = req.params.content_id;
-    db.query(`DELETE contents.*,comments.* FROM contents LEFT JOIN comments ON contents.content_id = comments.comment_content_id WHERE content_id = "${content_id}" AND  content_author_id = "${uid}"`, (err, result) => {
-        if (err) {
-            res.send(err);
-        } else {
-            res.json({
-                msg: "Delete Content Successful",
-                status: "ok",
-            });
+    const decoded = jwt.verify(token, secert);
+
+    if (decoded.id != uid) {
+        res.json({
+            msg: "Forbidden ",
+            status: "error",
+        });
+    } else {
+        db.query(`DELETE contents.*,comments.* FROM contents LEFT JOIN comments ON contents.content_id = comments.comment_content_id WHERE content_id = "${content_id}" AND  content_author_id = "${uid}"`, (err, result) => {
+            if (err) {
+                res.send(err);
+            } else {
+                res.json({
+                    msg: "Delete Content Successful",
+                    status: "ok",
+                });
+            }
         }
+        )
     }
-    )
 })
 
 router.get('/:id', (req, res) => {
